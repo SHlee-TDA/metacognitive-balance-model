@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mcbalance"
+version = "0.1.0"
+description = "A minimal control-theoretic model of the Metacognitive Balance perspective (Han & Gu, 2025)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Your Name", email = "you@example.com" }]
+keywords = ["computational-psychiatry", "metacognition", "schizophrenia", "dynamical-systems", "control-theory"]
+dependencies = ["numpy>=1.22", "matplotlib>=3.5"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+mcbalance-figures = "mcbalance.experiments:_cli"
