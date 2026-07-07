@@ -7,6 +7,8 @@
 \usepackage{amsmath,amssymb,mathtools}
 \usepackage{empheq}
 \usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
 \usepackage{booktabs}
 \usepackage{xcolor}
 \usepackage[most]{tcolorbox}
@@ -54,7 +56,7 @@
 
 \title{\vspace{-1.2cm}\textbf{From ``Balance'' to Dynamics}\\[4pt]
 \large A Control-Theoretic Formalization of the Metacognitive\\ Balance Perspective of Han \& Gu (2025)}
-\author{\textit{Working note, prepared for the collaboration with Prof.\ Mihwa Han}\\[2pt]\small [Your name]}
+\author{\textit{Working note, prepared for the collaboration with Prof.\ Mihwa Han}\\[2pt]\small Seong Heon Lee}
 \date{\today}
 
 \begin{document}
@@ -62,7 +64,7 @@
 \vspace{-0.6cm}
 
 \begin{abstract}
-\noindent Han \& Gu (2025) argue that cognitive and social functioning in schizophrenia is governed less by \emph{the order} in which self-awareness and context/other-awareness are trained than by their \emph{concurrent co-regulation}, and they picture this balance as movement within an ``adaptive corridor'' policed by immediate ``pivots.'' This note takes their verbal framework at face value and asks a narrow question: \emph{if we write these claims down as equations, does the resulting system actually reproduce the clinical phenomena they describe?} I formalize interpretation as a probabilistic belief, metacognition as a control law acting on that belief, and the self--context referencing system as a coupled dial. A minimal single-scenario realization then reproduces, without extra assumptions, four described phenomena: consolidation of a threat belief under over-internalization, erratic cue-tracking under over-externalization, jumping-to-conclusions as premature confidence, and the rescue of a consolidating belief by a within-session pivot. Two further studies show that the chapter's own ``minimal indices'' (confidence--outcome congruence and tolerance of ambiguity) separate the regimes, and that concurrent co-regulation quantitatively outperforms a gated ``self-then-context'' sequence. Every modeling decision is anchored to the specific sentence in \citet{HanEtAL2025} that motivated it, and every mathematical object is glossed in plain language. This is offered as an \emph{interpretation} of the chapter, not a competing theory.
+\noindent Han \& Gu (2025) argue that cognitive and social functioning in schizophrenia is governed less by \emph{the order} in which self-awareness and context/other-awareness are trained than by their \emph{concurrent co-regulation}, and they picture this balance as movement within an ``adaptive corridor'' policed by immediate ``pivots.'' This note takes their conceptual framework at face value and asks a narrow question: \emph{if we write these claims down as equations, does the resulting system actually reproduce the clinical phenomena they describe?} I formalize interpretation as a probabilistic belief, metacognition as a control law acting on that belief, and the self--context referencing system as a coupled dial. A minimal single-scenario realization then reproduces, without extra assumptions, four described phenomena: consolidation of a threat belief under over-internalization, erratic cue-tracking under over-externalization, jumping-to-conclusions as premature confidence, and the rescue of a consolidating belief by a within-session pivot. Two further studies show that the chapter's own ``minimal indices'' (confidence--outcome congruence and tolerance of ambiguity) separate the regimes, and that concurrent co-regulation quantitatively outperforms a gated ``self-then-context'' sequence. Every modeling decision is anchored to the specific sentence in \citet{HanEtAL2025} that motivated it, and every mathematical object is glossed in plain language. This is offered as an \emph{interpretation} of the chapter, not a competing theory.
 \end{abstract}
 
 % =====================================================================
@@ -110,13 +112,17 @@ I build the model in the order the chapter builds its argument: first what a met
 \dots the capacity to consistently integrate and interpret thoughts, feelings, and bodily sensations in light of others' intentions, prevailing social norms, and situational cues, and to regulate responses accordingly.
 \end{fromtext}
 
-\noindent Two things are asserted here. First, a metacognitive output is an \emph{interpretation} formed by \emph{integrating} internal material (thoughts, feelings, sensations) with external material (others' intentions, norms, cues). Second, that interpretation feeds \emph{regulation}. I therefore split the construct into an output (the interpretation) and a controller (the regulation), and I make the output a \emph{probability} rather than a fixed answer, because the chapter repeatedly treats premature certainty as pathological:
+\noindent Two things are asserted here. First, a metacognitive output is an \emph{interpretation} formed by \emph{integrating} internal material (thoughts, feelings, sensations) with external material (others' intentions, norms, cues). Second, that interpretation feeds \emph{regulation}. I therefore split the construct into an output (the interpretation) and a controller (the regulation). The output is a \emph{probability} rather than a fixed answer because of how the chapter says interpretations are \emph{formed}: not by retrieving a single verdict, but by entertaining several candidate readings of the same situation, weighing each against the evidence of the moment, and adopting---provisionally---the most believable one. That hypothesis-generating loop is stated as the chapter's own operating sequence (see also p.~3, ``halt premature closure $\rightarrow$ generate alternatives $\rightarrow$ check key evidence,'' and Box~2's ``Name two other explanations,'' p.~12):
+% [2026-07-07 반영 C1: probability 설정의 동기를 "가설 생성-증거 갱신-최선 가설 선택"(연구노트의 본래 의도)으로 교체.
+%  fact check 결과: 가설 능력 기술은 원문 p.3(halt premature closure→generate alternatives→check key evidence),
+%  p.6 각주 2(micro-cycle), p.12 Box 2("Name two other explanations")에서 확인됨. 인용 box도 p.5(JTC)에서 p.6 각주 2로 교체 —
+%  부수 효과로, p.5 인용문이 over-externalization 문단 소속이라는 감사 F2의 맥락 문제도 함께 해소.]
 
-\begin{fromtext}{p.~5}
-Decisions are often driven by automatic feelings (``feeling = fact'') without explicit reflection, leading to premature closure (JTC) before controlled re-appraisal comes online.
+\begin{fromtext}{p.~6, footnote 2}
+\dots a short, repeated sequence---check confidence; generate two or three alternatives; contrast key evidence (for/against); reweight contextual cues; recalibrate confidence\dots
 \end{fromtext}
 
-\noindent For a single ambiguous social event with two readings---$h_1$ (benign) and $h_2$ (threat / self-referential)---I represent the interpretation as the posterior probability of the threat reading, written on the log-odds scale:
+\noindent Formally, the person entertains candidate hypotheses $h_1,\dots,h_n$ with momentary confidences $p_1,\dots,p_n$ ($\sum_i p_i=1$), and the \emph{interpretation} acted upon is the current best one, $X=\arg\max_i p_i$---held with the awareness that it is a probabilistic choice, not a certainty. Treating confidence as a subjective probability that one's reading is correct is the standard move in computational accounts of metacognition \citep{FlemingDaw2017}, and Proust's own theoretical sketch of procedural metacognition, the \emph{adaptive accumulator}, is a device that accumulates exactly such graded evidence \citep{Proust2012}. Premature certainty---committing before the alternatives have been weighed---then re-appears as the pathology the chapter calls the ``feeling = fact'' shortcut and premature closure (JTC; p.~5). For the single ambiguous social event studied here there are two readings---$h_1$ (benign) and $h_2$ (threat / self-referential)---so one number carries the whole distribution: the posterior probability of the threat reading, written on the log-odds scale:
 \begin{equation}
 L(t) \;=\; \log\frac{P(h_2\mid \text{evidence up to }t)}{P(h_1\mid \text{evidence up to }t)},
 \qquad
@@ -126,8 +132,45 @@ b(t)\;=\;\sig\!\big(L(t)\big)\;=\;\frac{1}{1+e^{-L(t)}} .
 The \emph{decision} the person acts on is the more probable reading, $\hat h = h_2$ if $b>\tfrac12$ else $h_1$; ``jumping to conclusions'' is then simply committing to $\hat h$ while confidence is high but accumulated evidence is small.
 
 \begin{plainbox}
-$L$ is one number that stores the whole belief, and it is deliberately \emph{not} a yes/no. $L=0$ means genuinely undecided; the further from $0$, the more sure. Writing the belief this way lets each new piece of evidence just \emph{add} to $L$, and it makes ``jumping to conclusions'' precise: it is $L$ shooting far from $0$ after very little has actually been added.
+An everyday version first: a fire alarm sounds. You entertain $h_1$ ``there is a fire'' and $h_2$ ``the alarm is malfunctioning,'' and your lean between them shifts as evidence arrives---a smell of smoke, or colleagues who keep typing. $L$ is one number that stores that lean, and it is deliberately \emph{not} a yes/no. $L=0$ means genuinely undecided; the further from $0$, the more sure. Writing the belief this way lets each new piece of evidence just \emph{add} to $L$, and it makes ``jumping to conclusions'' precise: it is $L$ shooting far from $0$ after very little has actually been added.
 \end{plainbox}
+
+% [2026-07-07 반영 C2: 심리학 독자를 위한 직관적 step-by-step 그림 placeholder.
+%  아래 프롬프트로 이미지를 생성하신 뒤 figs/accumulation_cartoon.png 로 저장하고,
+%  \fbox{...} 줄을 지우고 \includegraphics 줄의 주석을 풀면 됩니다.]
+%
+% ── 이미지 생성 프롬프트 (한국어) ─────────────────────────────────────────────
+% 가로로 긴 2단 구성의 심리학 교육용 일러스트.
+% [상단 스트립] 같은 인물이 등장하는 4개의 장면을 시간 순서(t1→t4)로 배치:
+%   t1: 회의실에서 두 동료가 웃고, 주인공이 그 소리를 듣는 순간 (말풍선: "나를 보고 웃었나?")
+%   t2: 주인공 내면의 재료 — 가슴이 철렁하는 느낌을 나타내는 아이콘 (생각풍선: 어두운 구름, "기분이 상한다")
+%   t3: 외부의 재료 — 동료 한 명이 휴대폰 화면을 가리키며 웃는 모습이 주인공 눈에 들어옴
+%   t4: 주인공이 어깨를 펴고 안도하는 표정 (말풍선: "아, 영상 보고 웃은 거구나… 아마도.")
+% [하단 패널] 상단 4장면과 시간축이 정렬된 하나의 그래프:
+%   x축 = 시간(t1~t4), y축 = "위협 해석에 대한 믿음 b(t)" (0에서 1 사이, 0.5에 점선으로 '반반' 표시)
+%   곡선은 t1에서 0.5 부근에서 시작해 t2에서 0.75까지 상승했다가, t3의 증거 이후 t4에서 0.3 부근으로 하강.
+%   곡선 위 각 변곡점에 작은 화살표와 라벨: "내면 재료(+)", "외부 단서(−)".
+% 스타일: 따뜻한 파스텔 톤, 부드러운 선, 수식 없음, 교과서 삽화 느낌. 텍스트 라벨은 영어로:
+%   "inner material", "outer cue", "belief in the threat reading b(t)", "50/50".
+% ──────────────────────────────────────────────────────────────────────────
+% ── Image-generation prompt (English) ──────────────────────────────────────
+% A wide two-tier educational illustration for a psychology audience.
+% [Top strip] The same character across four moments (t1→t4):
+%   t1: in a meeting room, two colleagues laugh; the protagonist hears it (speech bubble: "Were they laughing at me?")
+%   t2: the inner material — a pang icon over the chest (thought bubble with a small dark cloud: "That stings")
+%   t3: the outer material — the protagonist notices one colleague pointing at a phone screen while laughing
+%   t4: the protagonist relaxes (speech bubble: "Ah — they were laughing at a video… probably.")
+% [Bottom panel] A single graph aligned with the four scenes above:
+%   x-axis = time (t1–t4); y-axis = "belief in the threat reading b(t)" from 0 to 1, dashed line at 0.5 labeled "50/50".
+%   The curve starts near 0.5 at t1, rises to ~0.75 by t2, then falls to ~0.3 by t4 after the t3 evidence.
+%   Small arrows on the curve labeled "inner material (+)" and "outer cue (−)".
+% Style: warm pastel palette, soft lines, no equations, textbook-illustration feel.
+% ──────────────────────────────────────────────────────────────────────────
+\begin{figure}[h]\centering
+\includegraphics[width=\linewidth]{figs/accumulation_cartoon.png}
+\caption{How an interpretation forms in time, narrated for Eq.~\eqref{eq:belief}. A person hears an ambiguous laugh; the first reading leans threatening; then inner material (the sting of the moment) and outer material (the phone screen, the colleagues' posture) arrive piece by piece, and the belief $b(t)$ drifts accordingly---each piece of evidence \emph{adding} to the log-odds $L(t)$ rather than replacing the verdict.}
+\label{fig:accumulation}
+\end{figure}
 
 % ---------------------------------------------------------------
 \subsection{Metacognition is control, so belief obeys a rate law}
@@ -143,35 +186,42 @@ $L$ is one number that stores the whole belief, and it is deliberately \emph{not
 L(t) \;=\; L(0) + \int_{0}^{t}\mathcal{M}\big(L(\tau),S(\tau)\big)\,d\tau .
 \label{eq:control}
 \end{equation}
-The chapter also tells us what the controller \emph{listens to}: Proust's procedural signals.
+Reading metacognition as a two-level loop---an object level that does the interpreting and a meta level that monitors and steers it---is the founding architecture of the field \citep{NelsonNarens1990}, and it is not a metaphor imported from engineering: Nelson and Narens ground it in the good-regulator argument that a controller must carry a model of what it controls \citep{ConantAshby1970}, Wells' clinical model of the metacognitive control system is explicitly cybernetic \citep{Wells2019}, and the chapter itself later speaks of ``the control-theoretic set point and gain'' (p.~10). Equation \eqref{eq:control} is that architecture written in continuous time. The chapter also tells us what the controller \emph{listens to}: Proust's procedural signals.
 
-\begin{fromtext}{p.~2}
+\begin{fromtext}{p.~3}
 \dots monitors and corrects ongoing cognitive processing via metacognitive feelings such as confidence, fluency, and effort.
 \end{fromtext}
 
-\noindent I take confidence to be the readable procedural signal, and define it as distance from the undecided point,
-\begin{equation}
-c(t) \;=\; \big|\,2\,b(t)-1\,\big| \;\in\;[0,1].
-\label{eq:conf}
-\end{equation}
+\noindent These metacognitive \emph{feelings} are the monitoring stream of the loop: the quantities the stop--check--shift routine reads before deciding whether to intervene. Chief among them is confidence, which in this model can be read directly off the belief; its formal definition is deferred to \S\ref{sec:exp} (Eq.~\ref{eq:conf}), where it is first put to work---to score the simulations and to state the chapter's two minimal indices.
+% [2026-07-07 반영 C3: confidence 정의(c=|2b-1|)를 실제 사용처인 §3 도입부로 이동하고, 여기서는 forward reference만 남김.]
 
 \begin{plainbox}
-Equation~\eqref{eq:control} is just: ``the belief now = the belief a moment ago + the small push metacognition applied.'' Adding up all those small pushes over time is the integral. Nothing here assumes the pushes are large or fast; that is decided by the ingredients we plug into $\mathcal{M}$ next. Confidence \eqref{eq:conf} is $0$ when unsure and $1$ when certain either way.
+Equation~\eqref{eq:control} is just: ``the belief now = the belief a moment ago + the small push metacognition applied.'' Adding up all those small pushes over time is the integral. Nothing here assumes the pushes are large or fast; that is decided by the ingredients we plug into $\mathcal{M}$ next. The integral form also carries the chapter's slower story (\S4.2, p.~10): change is \emph{accumulated}---gradually internalized---rather than recomputed from scratch each moment.
 \end{plainbox}
 
 % ---------------------------------------------------------------
 \subsection{The self--context dial (the cognitive referencing system)}
+\label{sec:dial}
 
 \begin{fromtext}{p.~7}
 \dots a cognitive referencing system that tilts toward either an internal (self-reflective) or an external (context/other-oriented) anchor is prone to systematic distortions\dots a dynamic regulator moving between two axes---self-awareness and context/other-awareness---to enable early detection and adjustment of imbalances.
 \end{fromtext}
 
-\noindent This sentence gives the model its central moving part. Evidence arrives on two channels, and the controller \emph{weights} them. Let $\alpha(t)\in[0,1]$ be the weight on the internal channel (so $1-\alpha$ is the weight on the external channel; on the simplex these are the two coordinates $\alpha_{\text{self}},\alpha_{\text{context}}$ that you wrote, but one number suffices). The two channels are:
+\noindent This sentence gives the model its central moving part. Evidence arrives on two channels, and the controller \emph{weights} them. Let $\alpha(t)\in[0,1]$ be the weight on the internal channel and $1-\alpha$ the weight on the external channel---equivalently, a convex allocation $(\alpha_{\text{self}},\alpha_{\text{context}})=(\alpha,\,1-\alpha)$ on the simplex, the definition adopted in earlier drafts of this note. The simplex expresses \emph{relative allocation}: how processing is apportioned between self and context at each moment. What it deliberately does not carry is the \emph{overall level} of engagement---the chapter's Figure~2 lets both awarenesses be high (or low) at once, a distinction the allocation alone cannot make. The relation between the two pictures is revisited in \S\ref{sec:disc}. The two channels are:
 \begin{align}
 \text{internal (affect / introspection):}\quad & \lambda_S(L) \;=\; a_S + r\,\sig(L),\\
 \text{external (situational cues):}\quad & \lambda_C(t) \;=\; a_C + \xi(t),
 \end{align}
 where $a_S\ge 0$ is a baseline threat-leaning affect, $a_C\le 0$ says cues tend to \emph{dis}confirm the threat reading, and $\xi(t)$ is time-correlated noise standing for the ambiguity of real situations. The term $r\,\sig(L)$ is the crucial one and is justified in \S\ref{sec:overint}.
+
+% [2026-07-07 반영 C4: a_S, a_C, r, ξ(t)의 원문 근거와, 이들이 식 (2)의 자극 S(t)와 어떻게 연결되는지(두 stream 분해) 명시.]
+\paragraph{Where these ingredients come from, and how they realize $S(t)$.} The abstract stimulus of Eq.~\eqref{eq:control} enters the person on two streams, $S(t)=\big(S_{\text{int}}(t),\,S_{\text{ext}}(t)\big)$: what the moment stirs up \emph{inside} (affect, associations) and what it offers \emph{outside} (faces, words, behavior). The two channels above are precisely these streams converted into pushes on $L$, and each constant is anchored in the chapter:
+\begin{itemize}[leftmargin=1.5em]
+\item \textbf{$a_S$ (baseline threat-leaning affect).} The standing internal push, before any looping: ``risk/meaning attributions escalate internally, potentially intensifying anxiety and delusional interpretations'' (p.~5).
+\item \textbf{$r\,\sig(L)$ (ruminative gain).} The state-dependent part of the internal stream---the loop of \S\ref{sec:overint} (p.~4--5).
+\item \textbf{$a_C$ (disconfirming cue drift).} In this scenario, honestly consulted context speaks \emph{against} the threat reading---this is the chapter's own worked example, where listing context cues moves confidence from 8/10 to 4/10 (Box~2, p.~12). It is a scenario choice, not a law: the chapter equally describes states in which external material is mined \emph{for} threat (hyper-suspiciousness, p.~5; cf.\ ``threat monitoring'' in \citealp{Wells2019}); \S\ref{sec:disc} returns to this.
+\item \textbf{$\xi(t)$ (Ornstein--Uhlenbeck noise).} ``The inherent ambiguity of face-to-face situations'' together with the within- and across-day fluctuation the chapter attributes to medication, sleep, and stress (p.~5): evidence that is informative on average but noisy moment to moment, hence time-correlated noise rather than white noise.
+\end{itemize}
 
 \begin{plainbox}
 $\alpha$ is a volume knob between two inputs: your own gut/affect on one side, the room's cues on the other. Turn it up and inner feelings dominate the belief; turn it down and outside cues do. The chapter's ``tilt'' \emph{is} this knob sitting off-center.
@@ -184,14 +234,61 @@ $\alpha$ is a volume knob between two inputs: your own gut/affect on one side, t
 \dots a dynamic regulatory capacity that coordinates both axes concurrently and interactively, preventing drifts toward over-internalization \dots and over-externalization.
 \end{fromtext}
 
-\noindent Because the two axes are \emph{co-regulated} rather than sequenced, belief and dial evolve \emph{together}. Combining the weighted channels with the leak of \S\ref{sec:purpose}, and letting the dial relax toward a personal set-point while being nudged by the therapist, gives the coupled pair that is the whole model:
+\noindent Because the two axes are \emph{co-regulated} rather than sequenced, belief and dial evolve \emph{together}. In the notation of the research note underlying this manuscript, the abstract system is a coupled, non-autonomous pair
+\begin{equation}
+\frac{dL}{dt} \;=\; \mathcal{M}\big(L,\,S(t);\,\alpha\big),
+\qquad
+\frac{d\alpha}{dt} \;=\; \mathcal{G}\big(\alpha,\,L,\,\dot L;\,u(t)\big),
+\label{eq:abstract}
+\end{equation}
+the first equation the evolution of the interpretation, the second the adaptation of the cognitive referencing system, with $u(t)$ the clinical intervention (pivot triggers, micro-cycles) that forces the system back toward the adaptive corridor. The minimal realization adopted in this note is
 \begin{empheq}[box=\fbox]{align}
 \frac{dL}{dt}     &= \underbrace{\alpha\,\lambda_S(L)}_{\text{self}} \;+\; \underbrace{(1-\alpha)\,\lambda_C(t)}_{\text{context}} \;-\; \kappa L,
 \label{eq:sysL}\\[4pt]
 \frac{d\alpha}{dt} &= -\,\gamma\,(\alpha-\alpha_0) \;+\; u(t).
 \label{eq:sysA}
 \end{empheq}
-The leak $-\kappa L$ implements the chapter's ``controlled re-appraisal'' and its notion of \emph{calibration} (footnote~1, p.~3: adjusting judgment so confidence tracks evidence): absent fresh evidence, the belief drifts back toward equipoise. (Note: in your draft both lines of the coupled system were typeset as $dX/dt$; the second is the dial's equation, $d\alpha/dt$, as above.)
+% [2026-07-07 반영 C5: (i) 연구노트의 추상 시스템(M, G)을 먼저 제시하고 boxed 식이 그 최소 실현임을 명시,
+%  (ii) 이 식이 식 (2)의 M(L,S)를 어떻게 구체화하는지 서술, (iii) alpha가 L의 변화에 따라 조정된다는 결합이
+%  u(t)를 경유해 실현됨을 명시(연구노트의 G(α,L,L̇;u) 의존성 = eq:pivot의 b, dL/dt 읽기).]
+Equation \eqref{eq:sysL} is $\mathcal{M}$ of Eq.~\eqref{eq:control} made concrete,
+\[
+\mathcal{M}(L,S;\alpha) \;=\; \alpha\,\lambda_S(L) \;+\; (1-\alpha)\,\lambda_C(t) \;-\; \kappa L,
+\]
+i.e.\ the two evidence streams of \S\ref{sec:dial}, weighted by the dial, plus a recalibration leak; the dependence on the raw situation $S(t)$ is carried entirely by the channels ($a_S$, $\xi(t)$, and the perturbations used in the experiments), while the dependence on $L$ itself enters through the ruminative gain $r\,\sig(L)$. Equation \eqref{eq:sysA} is $\mathcal{G}$ made concrete, and its coupling to the belief is real but deliberately routed through the controller: the relaxation $-\gamma(\alpha-\alpha_0)$ carries the person's habitual set-point, while $\mathcal{G}$'s dependence on $(L,\dot L)$ is exactly the feedback term $u(t)$, which reads the belief and its rate of change and pushes the dial back when they signal imbalance (Eq.~\eqref{eq:pivot} below). So the dial \emph{does} adjust in response to what the belief is doing---and the chapter locates that responsiveness in precisely one place, the pivot triggers, which is why the model does too. Figure~\ref{fig:mechanism} draws the whole circuit.
+
+The leak $-\kappa L$ (Table~\ref{tab:notation}) is the standing, low-gain version of the micro-cycle's fifth step, \emph{recalibrate confidence} (Figure~1 of the chapter, p.~5; Box~1, p.~11): the chapter defines calibration as adjusting one's judgment rules so that subjective confidence better aligns with post-hoc evidence and outcomes (footnote~1, p.~3), and a steady pull of the log-odds back toward equipoise, absent fresh evidence, is the simplest continuous implementation of that adjustment. Its size is clinically meaningful: a small $\kappa$ is a large ``confidence gain'' in the chapter's own parameter list (p.~9)---certainty that outruns evidence (Table~\ref{tab:params}).
+% [2026-07-07 반영 C6: κ의 의미를 원문 근거(micro-cycle 5단계 "recalibrate confidence", fn.1 p.3의 calibration 정의, p.9 confidence gain)로 설명.]
+
+\begin{figure}[h]\centering
+\begin{tikzpicture}[>={Stealth[length=2.6mm]}, font=\small, node distance=20mm,
+  io/.style={draw, rounded corners=2pt, align=center, inner sep=5pt, minimum height=9mm, minimum width=26mm},
+  meta/.style={draw, very thick, rounded corners=3pt, align=center, inner sep=6pt,
+               minimum height=20mm, minimum width=26mm, fill=plainbg},
+  bel/.style={draw, thick, rounded corners=2pt, align=center, inner sep=6pt, minimum height=14mm, minimum width=20mm},
+  lbl/.style={font=\footnotesize, midway, fill=white, inner sep=1.5pt}]
+  % --- left: two input channels ---
+  \node[io] (self) {internal\\ $\lambda_S=a_S+r\,\sig(L)$};
+  \node[io, below=11mm of self] (ctx) {external\\ $\lambda_C=a_C+\xi(t)$};
+  % --- center: metacognition M ---
+  \node[meta, right=22mm of self.east, yshift=-11mm, anchor=west] (M)
+        {\textbf{metacognition }$\mathcal{M}$\\[1pt] weigh by dial $\alpha$\\ recalibrate ($-\kappa L$)};
+  % --- right: output belief ---
+  \node[bel, right=22mm of M] (L) {belief\\ $L(t)$};
+  % forward flow: channels -> M -> belief (left to right)
+  \draw[->, thick] (self.east) -- node[lbl, above] {$\times\,\alpha$} (M.west|-self.east);
+  \draw[->, thick] (ctx.east)  -- node[lbl, below] {$\times(1-\alpha)$} (M.west|-ctx.east);
+  \draw[->, very thick] (M) -- node[lbl, above] {forms} (L);
+  % dual role of M: it also monitors & controls the belief (feedback, bottom)
+  \draw[->, thick, cext] (L.south) to[out=-90, in=-90]
+        node[lbl, below] {monitor $b,\dot L$ \& control $u(t)$: stop--check--shift} (M.south);
+  % rumination: belief feeds the internal channel (feedback, top)
+  \draw[->, thick, cint] (L.north) to[out=90, in=90]
+        node[lbl, above] {$r\,\sig(L)$: rumination} (self.north);
+\end{tikzpicture}
+\caption{The model as one left-to-right circuit, drawing the chapter's central claim that metacognition \emph{is} control. Two evidence streams enter on the left; metacognition $\mathcal{M}$ (center) weighs them by the dial $\alpha$ and recalibrates, \emph{forming} the belief $L(t)$ on the right. The same $\mathcal{M}$ then plays its second role (blue, bottom): it \emph{monitors} the belief and \emph{controls} it back via the pivot $u(t)$---stop, check, strategy shift. The one inner short-circuit (red, top) is rumination: the belief feeds its own internal channel, so certainty breeds certainty.}
+\label{fig:mechanism}
+\end{figure}
 
 \begin{plainbox}
 Read \eqref{eq:sysL} left to right: the belief is pushed by inner signals \emph{times the knob}, plus outer cues \emph{times one-minus-the-knob}, minus a small pull back toward ``unsure.'' Read \eqref{eq:sysA}: the knob drifts back to the person's habitual setting $\alpha_0$, except when a therapist nudge $u$ moves it. Both happen at the same time---that is the ``concurrent'' in your abstract.
@@ -205,7 +302,7 @@ Read \eqref{eq:sysL} left to right: the belief is pushed by inner signals \emph{
 \dots over-internalization (excessive self-focus) appears as amplified rumination and guilt or shame, with a preoccupation with ``finding the cause within,'' thereby blocking corrective input from situational cues\dots\ an instance of calibration failure in metacognitive feelings where fluency is mistaken for validity.
 \end{fromtext}
 
-\noindent ``Finding the cause within'' and ``fluency mistaken for validity'' describe a loop: the more one already leans toward the self-referential reading, the more one's own affect is taken as further evidence \emph{for} it. That is precisely the term $r\,\sig(L)$: internal evidence grows with current belief. When the dial $\alpha$ is high, this loop can overwhelm the disconfirming external channel and the leak, and $L$ runs away---a consolidated, cue-insensitive threat belief. This is the mathematical signature of a delusion becoming fixed.
+\noindent ``Finding the cause within'' and ``fluency mistaken for validity'' describe a loop: the more one already leans toward the self-referential reading, the more one's own affect is taken as further evidence \emph{for} it. That is precisely the term $r\,\sig(L)$: internal evidence grows with current belief. When the dial $\alpha$ is high, this loop can overwhelm the disconfirming external channel and the leak, and $L$ runs away---a consolidated, cue-insensitive threat belief. This is the mathematical signature of delusion-like fixity; the chapter itself is appropriately more guarded, speaking of escalation that is ``potentially intensifying anxiety and delusional interpretations'' (p.~5).
 
 \begin{plainbox}
 The dangerous ingredient is $r\,\sig(L)$: ``the surer I already am, the more my feelings confirm it.'' With the knob turned toward the inside, this becomes a snowball---each turn adds to itself---and outside reassurance can no longer get in. Turn the knob back down and the snowball stops, which is exactly what the pivot does below.
@@ -221,7 +318,7 @@ The dangerous ingredient is $r\,\sig(L)$: ``the surer I already am, the more my 
 \noindent When $\alpha$ is small, \eqref{eq:sysL} is dominated by $(1-\alpha)\,\lambda_C(t)$, i.e.\ by the \emph{noisy} external channel. The belief then follows the moment-to-moment fluctuation of whichever cue is salient---``erratic across situations''---with weak internal anchoring. No separate mechanism is needed; erraticism falls out of a low knob feeding on ambiguous input.
 
 % ---------------------------------------------------------------
-\subsection{Pivots and micro-cycles are the control input $u(t)$}
+\subsection{Pivots and micro-cycles are the control input \texorpdfstring{$u(t)$}{u(t)}}
 
 \begin{fromtext}{p.~6, footnote 3}
 \dots when imbalance signals---over-internalization or over-externalization---are detected, immediately switches the rule-set between self- and context-work to recenter the trajectory within the adaptive corridor.
@@ -278,6 +375,18 @@ regulatory gain (p.~8) & $\gamma$ & how strongly the dial returns home\\
 
 I now ask whether the system \eqref{eq:belief}--\eqref{eq:pivot} \emph{behaves} as the chapter says people behave. All runs use the single ``they laughed at me'' scenario from the clinical vignette (p.~12); parameters are in Appendix~\ref{app:params}, code in Appendix~\ref{app:code}.
 
+% [2026-07-07 반영 C3: confidence 정의를 §2.2에서 이곳(실제 사용처)으로 이동하고 설명을 보강.]
+Two read-outs recur throughout. The \emph{commitment} is the decision of \S2.1 ($\hat h = \arg\max$). The \emph{confidence} is Proust's readable procedural feeling (p.~3) made numerical: the distance of the belief from the undecided point,
+\begin{equation}
+c(t) \;=\; \big|\,2\,b(t)-1\,\big| \;\in\;[0,1].
+\label{eq:conf}
+\end{equation}
+This one quantity is behind everything measured below: jumping to conclusions is $c$ crossing a commit level on thin evidence (Exp.~2), and both of the chapter's minimal indices are statements about $c$---its congruence with outcomes, and how long it stays low under ambiguity (Exp.~5).
+
+\begin{plainbox}
+Confidence here is not a new ingredient---it is the same belief looked at from a different angle. $b$ says \emph{which way} you lean; $c$ says \emph{how far}: $c=0$ means genuinely unsure, $c=1$ means certain either way. Proust's point is that this feeling is what the inner controller actually reads before deciding to stop and check. One honest caveat, developed in the Discussion: because $c$ is computed directly from $b$, the model cannot yet describe someone whose \emph{feeling} of certainty comes apart from their belief---for that, confidence needs its own, imperfectly coupled channel \citep{FlemingDaw2017}.
+\end{plainbox}
+
 % ----
 \subsection{Experiment 1 --- three regimes from one personality set-point}
 \textbf{Claim tested (p.~7):} a system that ``tilts toward either an internal\dots or an external\dots anchor is prone to systematic distortions.'' \textbf{Setup:} vary only the set-point $\alpha_0\in\{0.85,0.5,0.15\}$; everything else fixed. \textbf{Result} (Fig.~\ref{fig:exp1}): with $\alpha_0=0.85$ the ruminative loop $r\,\sig(L)$ drives the threat belief to $\approx0.98$ with high confidence, ignoring the disconfirming cue (delusion-like fixity); with $\alpha_0=0.5$ the belief stays near equipoise at low confidence (ambiguity tolerated); with $\alpha_0=0.15$ the belief is low but visibly erratic, tracking cue noise---matching ``responses erratic across situations'' (p.~5). One trait parameter reproduces all three described clinical pictures.
@@ -300,7 +409,7 @@ I now ask whether the system \eqref{eq:belief}--\eqref{eq:pivot} \emph{behaves} 
 
 % ----
 \subsection{Experiment 3 --- a pivot rescues a consolidating belief}
-\textbf{Claim tested (p.~6):} pivots ``recenter the trajectory within the adaptive corridor.'' \textbf{Setup:} the over-internalizing patient of Exp.~1, run with the (hysteretic) pivot law \eqref{eq:pivot} on vs.\ off, same noise seed. \textbf{Result} (Fig.~\ref{fig:exp3}): without intervention the belief locks at $\approx0.97$; with the pivot, once $b$ rises past the engage threshold $\theta_H^{\text{on}}$ the dial $\alpha$ is pushed down, disconfirming cues re-enter, and the belief is pulled back toward the corridor, releasing only when $b$ falls below $\theta_H^{\text{off}}$. The intermittent firing of $\alpha$ is the repeated micro-cycle---the model's picture of \emph{why} the loop must be brief and iterated (p.~5)---while the hysteresis band keeps it from chattering.
+\textbf{Claim tested (p.~6):} pivots ``recenter the trajectory within the adaptive corridor.'' \textbf{Setup:} the over-internalizing patient of Exp.~1, run with the (hysteretic) pivot law \eqref{eq:pivot} on vs.\ off, same noise seed. \textbf{Result} (Fig.~\ref{fig:exp3}): without intervention the belief locks at $\approx0.97$; with the pivot, once $b$ rises past the engage threshold $\theta_H^{\text{on}}$ the dial $\alpha$ is pushed down, disconfirming cues re-enter, and the belief is pulled back toward the corridor, releasing only when $b$ falls below $\theta_H^{\text{off}}$. The intermittent firing of $\alpha$ is the repeated micro-cycle---the model's picture of \emph{why} the loop must be brief and iterated (p.~6)---while the hysteresis band keeps it from chattering.
 
 \begin{figure}[h]\centering
 \includegraphics[width=\linewidth]{figs/exp3_pivot.png}
@@ -320,17 +429,17 @@ I now ask whether the system \eqref{eq:belief}--\eqref{eq:pivot} \emph{behaves} 
 
 % ----
 \subsection{Experiment 5 --- the two minimal indices are diagnostic of balance}
-\textbf{Claim tested (p.~6):} tracking \emph{confidence--outcome congruence} and \emph{tolerance of ambiguity} suffices to read out balance. \textbf{Setup:} for each regime I run a truth-balanced ensemble (the hidden state is threat or benign with equal probability) and, at commitment, record confidence and correctness; congruence is summarized by the Expected Calibration Error (ECE, the average gap between confidence and accuracy). Separately, I present a genuinely ambiguous stimulus (internal and external evidence cancel, elevated noise) and measure how long the agent stays with it before confidence crosses a commit level. \textbf{Result} (Fig.~\ref{fig:exp5}): the balanced regime is best calibrated (lowest ECE, its reliability curve hugging the diagonal) and the most ambiguity-tolerant; the over-internalizer is confidently wrong (large ECE---the chapter's ``persistent overconfidence $\rightarrow$ suspect internal excess,'' p.~12), and the over-externalizer commits fastest on noise (low tolerance---``jumping-to-conclusions,'' p.~12). The chapter's two low-burden indices thus separate the regimes on their own.
+\textbf{Claim tested (p.~7):} tracking \emph{confidence--outcome congruence} and \emph{tolerance of ambiguity} suffices to read out balance. \textbf{Setup:} for each regime I run a truth-balanced ensemble (the hidden state is threat or benign with equal probability) and, at commitment, record confidence and correctness; congruence is summarized by the Expected Calibration Error (ECE, the average gap between confidence and accuracy). Separately, I present a genuinely ambiguous stimulus (internal and external evidence cancel, elevated noise) and measure how long the agent stays with it before confidence crosses a commit level---the model's analogue of the opt-out paradigms used to demonstrate procedural metacognition behaviorally \citep{Proust2012}. \textbf{Result} (Fig.~\ref{fig:exp5}): on calibration, the balanced regime is clearly best (lowest ECE, its reliability curve hugging the diagonal), while both extremes are confidently wrong---the over-internalizer's is the chapter's ``persistent overconfidence $\rightarrow$ suspect internal excess'' (Table~2, p.~11). On tolerance of ambiguity, the ranking does \emph{not} track balance directly: the over-internalizer commits fastest of the three (lowest tolerance)---in this model, jumping to conclusions on thin evidence is what the ruminative gain $r\,\sig(L)$ produces once it dominates the leak---while the over-externalizer stays with the ambiguous stimulus longest (highest tolerance), and the balanced regime falls in between. This is a genuine tension with the chapter's own reading of the index, which pairs low tolerance with ``external avoidance/jumping-to-conclusions tendency'' (Table~2, p.~11)---i.e.\ the opposite axis. Calibration alone carries the balance signal in this realization; \S\ref{sec:disc} and the accompanying model audit flag which axis JTC belongs to as an open question for the collaboration. Even so, the two low-burden indices jointly separate all three regimes.
 
 \begin{figure}[h]\centering
 \includegraphics[width=\linewidth]{figs/exp5_indices.png}
-\caption{The paper's minimal indices. (a) Reliability diagram with ECE per regime; balance is best calibrated. (b) Tolerance of ambiguity; balance stays with not-knowing longest.}
+\caption{The paper's minimal indices. (a) Reliability diagram with ECE per regime; balance is best calibrated. (b) Tolerance of ambiguity; the over-internalizer commits fastest, the over-externalizer stays with not-knowing longest, and balance falls in between.}
 \label{fig:exp5}
 \end{figure}
 
 % ----
 \subsection{Experiment 6 --- concurrent co-regulation beats a gated sequence}
-\textbf{Claim tested (Table~1, p.~4; \S2.4):} concurrent co-regulation should outperform a strict ``self $\rightarrow$ context'' sequence. \textbf{Setup:} on the same substrate and noise, I compare a \emph{sequential} policy (the set-point $\alpha_0(t)$ is gated: high, i.e.\ self-work, for the first half; low, i.e.\ context-work, for the second half; no feedback) against the \emph{balanced} policy (the hysteretic pivot). A burst of threat-consistent evidence is injected mid-run to probe recovery. I score corridor dwell-time (fraction of time the belief stays in the balanced band) and recovery time after the perturbation. \textbf{Result} (Fig.~\ref{fig:exp6}): the balanced policy spends far more time in the corridor (dwell $0.84$ vs.\ $0.12$) and re-enters it faster after the shock (recovery $3.5$ vs.\ $5.9$). A fixed schedule is repeatedly ``in the wrong mode'' for the moment's demand; state-dependent co-regulation is not---exactly the chapter's argument, now quantified.
+\textbf{Claim tested (Table~1, p.~4; \S2.4):} concurrent co-regulation should outperform a strict ``self $\rightarrow$ context'' sequence. \textbf{Setup:} on the same substrate and noise, I compare a \emph{sequential} policy (the set-point $\alpha_0(t)$ is gated: high, i.e.\ self-work, for the first half; low, i.e.\ context-work, for the second half; no feedback) against the \emph{balanced} policy (the hysteretic pivot). A burst of threat-consistent evidence is injected mid-run to probe recovery. I score corridor dwell-time (fraction of time the belief stays in the balanced band) and recovery time after the perturbation. \textbf{Result} (Fig.~\ref{fig:exp6}): the balanced policy spends far more time in the corridor (dwell $0.84$ vs.\ $0.12$) and re-enters it faster after the shock (recovery $3.5$ vs.\ $5.9$). A fixed schedule is repeatedly ``in the wrong mode'' for the moment's demand; state-dependent co-regulation is not---exactly the chapter's argument, now quantified. An important caveat: the ``sequential'' policy here is a deliberately stark gate---no within-stage feedback at all---and is \emph{not} a simulation of MCI-S as actually practiced, which embeds rich within-session interaction across ten weekly 90-minute group sessions and has demonstrated real benefits (reduced delusions, improved social cognition and functioning; p.~2; \citealp{HanLee2022}). Nor should the dwell-fraction gap be read as a predicted clinical effect size: real psychological interventions in psychosis move symptoms by small-to-moderate amounts \citep[SMD $\approx$ 0.3--0.5;][]{Lutgens2017}. What the idealized comparison isolates is the chapter's own sequence-to-balance \emph{mechanism} (\S2.4), not a magnitude and not a verdict on MCI-S.
 
 \begin{figure}[h]\centering
 \includegraphics[width=\linewidth]{figs/exp6_policy.png}
@@ -344,7 +453,9 @@ I now ask whether the system \eqref{eq:belief}--\eqref{eq:pivot} \emph{behaves} 
 
 \paragraph{What the formalization buys.} Three of the chapter's claims are, in the model, not assumptions but \emph{consequences}. Over-internalization consolidating into fixity, over-externalization being erratic, and JTC being premature confidence all emerge from the single coupled system once the ruminative feedback term $r\,\sig(L)$ and the dial $\alpha$ are in place. The strongest internal check is Table~\ref{tab:params}: the four control parameters the model requires are the four the chapter already names on p.~9. Experiments~5--6 add quantitative support: the chapter's two minimal indices separate the regimes, and its verbal preference for concurrency over sequence becomes a measurable gap in corridor dwell-time and recovery speed.
 
-\paragraph{Limitations and honest caveats.} This is one scenario with two hypotheses; nothing here speaks to hallucinations or to multi-agent social settings. The pivot law \eqref{eq:pivot} is a caricature of a clinician's judgment. And, as the chapter itself stresses (p.~10, \S4.1), an immediate in-session effect is \emph{not} lasting metacognitive change; the model's fast dynamics should not be over-read as the slow internalization the chapter cares about.
+\paragraph{What the wider literature adds.} A survey of the references assembled for this collaboration locates the model in three ways. First, the control-theoretic reading is not an import from engineering: the founding architecture of metacognition research is a monitoring--control loop whose meta level carries a model of what it regulates \citep{NelsonNarens1990, ConantAshby1970}, Wells' clinical account of the metacognitive control system is explicitly cybernetic \citep{Wells2019}, and Proust's procedural metacognition is an evidence accumulator \citep{Proust2012}---the formalization sits inside the very tradition the chapter cites. Second, the sensory-deprivation literature supplies a ready-made test the model has not yet run: removing the external channel (blindfolding, anechoic chambers) induces hallucination-like experiences in healthy people within minutes to days, more strongly in the predisposed \citep{Merabet2004, Daniel2014}. In model terms this is silencing $\lambda_C$ and letting the internal loop run---a state $\times$ trait prediction ($a_C,\sigma_C \to 0$ crossed with $\alpha_0, r$) the current code can already simulate. Third, the same literature marks the model's sharpest structural limit: computing confidence directly from the belief (Eq.~\eqref{eq:conf}) is what \citet{FlemingDaw2017} call a \emph{first-order} architecture, and it cannot represent dissociations between performance and self-evaluation. Yet such dissociations are the clinically decisive cases: Merabet's blindfolded subjects hallucinated \emph{while knowing the images were unreal}, and insight is precisely the variable the MCI-S trial left unmoved \citep{HanLee2022}. A second-order extension---a distinct confidence variable, imperfectly coupled to $L$---is therefore the natural next structural step; and the pivot law \eqref{eq:pivot} itself may ultimately be \emph{derived} rather than postulated, as resource-rational strategy selection under switching costs \citep{LiederGriffiths2017}, which would turn its hysteresis from a modeling convenience into a prediction.
+
+\paragraph{Limitations and honest caveats.} This is one scenario with two hypotheses; nothing here speaks to hallucinations or to multi-agent social settings (though the deprivation prediction above is the nearest bridge to the former). The single dial $\alpha$ is a convex allocation between the two channels: it captures the \emph{relative} apportioning of processing between self- and context-awareness (what the chapter calls the internal--external ``tilt'') but not their overall level, so states the chapter's Figure~2 distinguishes---both awarenesses strong versus both weak---are collapsed here; whether that dimension must be restored is a question for the collaboration. The pivot law \eqref{eq:pivot} is a caricature of a clinician's judgment. And, as the chapter itself stresses (p.~10, \S4.1), an immediate in-session effect is \emph{not} lasting metacognitive change; the model's fast dynamics should not be over-read as the slow internalization the chapter cares about.
 
 \paragraph{What was refined here, and what remains.} Two refinements flagged in an earlier draft are now in the model. The pivot uses a \emph{hysteresis} band (separate engage/release thresholds $\theta_H^{\text{on}},\theta_H^{\text{off}}$), which removes the chattering seen with a bare threshold and reads as a clinician \emph{committing} to a rebalancing move rather than flickering at the boundary. And interpretation is kept as a posterior while an explicit \emph{commitment} read-out (the $\arg\max$ at decision time) is used to compute the Exp.~5 indices. Remaining work is empirical rather than structural: fitting the parameters of Table~\ref{tab:params} to real confidence--outcome and ambiguity-tolerance logs, and extending beyond a single two-hypothesis scene.
 

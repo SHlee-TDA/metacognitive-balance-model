@@ -76,7 +76,7 @@ print(tolerance_of_ambiguity(Params(alpha0=0.50)))
 | 2 | "feeling = fact" → JTC (p.5) | `figures/exp2_jtc.png` |
 | 3 | pivots recenter within the corridor (p.6) | `figures/exp3_pivot.png` |
 | 4 | the adaptive corridor (Fig. 2, p.7) | `figures/exp4_corridor.png` |
-| 5 | the two minimal indices are diagnostic (p.6) | `figures/exp5_indices.png` |
+| 5 | the two minimal indices are diagnostic (p.7) | `figures/exp5_indices.png` |
 | 6 | concurrency beats a gated sequence (Table 1) | `figures/exp6_policy.png` |
 
 Representative Experiment 6 output: corridor dwell-fraction **0.84 (balanced)** vs
