@@ -214,7 +214,7 @@ def exp5_indices(outdir="figures"):
     axes[1].set_xticklabels(["Over-\ninternal.", "Balanced", "Over-\nexternal."], fontsize=9)
     _style(axes[1])
 
-    fig.suptitle("Experiment 5 - The balanced regime scores best on both minimal indices",
+    fig.suptitle("Experiment 5 - The two minimal indices separate the three regimes",
                  fontsize=12, fontweight="bold", color=INK)
     fig.tight_layout(rect=[0, 0, 1, 0.94])
     return _save(fig, outdir, "exp5_indices.png")

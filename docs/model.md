@@ -27,7 +27,7 @@ lambda_C(t) = aC + xi(t),   dxi = -theta*xi dt + sigC dW
 | Interpretation = integrate internal + external, then regulate | p.1: metacognitive regulation integrates thoughts/feelings/sensations with others' intentions, norms, cues, and regulates responses |
 | Belief is a **probability**, not a verdict; JTC = premature closure | p.5: decisions driven by "feeling = fact" lead to premature closure (JTC) before re-appraisal |
 | Metacognition is **control** → a rate law `dL/dt = M(...)` | p.3: "its core is control — stop, check, strategy shift" |
-| Confidence as procedural signal | p.2 (Proust): monitors/corrects via feelings such as confidence, fluency, effort |
+| Confidence as procedural signal | p.3 (Proust): monitors/corrects via feelings such as confidence, fluency, effort |
 | Self–context **dial** `alpha` | p.7: a referencing system tilting internal vs external; a dynamic regulator between two axes |
 | **Coupled** (concurrent) system | abstract/p.2: coordinates both axes concurrently and interactively |
 | Rumination term `r*sigmoid(L)` (positive feedback) | p.4–5: over-internalization = "finding the cause within"; fluency mistaken for validity |
@@ -36,7 +36,7 @@ lambda_C(t) = aC + xi(t),   dxi = -theta*xi dt + sigC dW
 | Four control parameters | p.9: confidence gain, ambiguity threshold, cue weighting, switch sensitivity |
 | Set-point `alpha0`, gain `gamma`; personality | p.8: baseline tilt (set-point) and regulatory gain; aligns with Jung intro/extraversion |
 | Adaptive corridor (attractor) | p.7: diagonal corridor = balanced co-regulation; pivots at the two corners |
-| Minimal indices | p.6: track confidence–outcome congruence and tolerance of ambiguity |
+| Minimal indices | p.7: track confidence–outcome congruence and tolerance of ambiguity |
 
 ## Mapping the chapter's four control parameters (p.9) onto the code
 
