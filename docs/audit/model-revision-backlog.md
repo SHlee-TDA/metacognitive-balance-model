@@ -17,7 +17,8 @@
 | B-11 | P1 | **Exp. 7 — 감각 박탈 시뮬레이션**: `aC=0, sigC→0`에서 `alpha0 × r` 격자 스윕, state×trait 패턴 재현 (Daniel 2014 / Merabet 2004 실증 대응) | lit/daniel2014.md, merabet2004.md | model.py, experiments.py | 제안 (강력) |
 | B-12 | P2 | pivot의 메타추론적 유도: 전환 비용 하 VOC 최적 정책 vs PivotLatch — 히스테리시스 창발 검증 | lit/lieder2017.md | model.py | 제안 |
 | B-13 | Phase4 | mcbalance `L`/`alpha` 2축 ↔ NeuroCogMap representation/behavior-control 2병리축 정합; sycophancy=over-ext, self-conditioning=over-int 검증 | lit/sun2026-neurocogmap.md | docs/llm-bridge.md | 제안 |
-| **B-14** | **P0(문서)** | **★Exp. 5 tolerance 서술이 코드/그림과 정반대**. 코드 재실행값(exp5_indices.png): over-int **1.7**(가장 빨리 커밋) / balanced **8.8**(중간) / over-ext **17.4**(가장 오래 버팀). 본문은 "balanced가 가장 tolerant, over-ext가 가장 빨리 커밋"이라 서술 — 둘 다 틀림. 그림 suptitle "balanced가 두 지표 모두 최고"도 절반만 참(calibration만). **기존 버그**(이번 교정 무관), double-check로 발견. F2/Q2(JTC 축 귀속)와 직접 연결 | 코드 재실행 2026-07-07 | main.tex Exp.5, experiments.py suptitle | **사용자 결정 대기** |
+| **B-14** | **P0(문서)** | **★Exp. 5 tolerance 서술이 코드/그림과 정반대**. 코드 재실행값(exp5_indices.png): over-int **1.7**(가장 빨리 커밋) / balanced **8.8**(중간) / over-ext **17.4**(가장 오래 버팀). 본문은 "balanced가 가장 tolerant, over-ext가 가장 빨리 커밋"이라 서술 — 둘 다 틀림. 그림 suptitle "balanced가 두 지표 모두 최고"도 절반만 참(calibration만). **기존 버그**(이번 교정 무관), double-check로 발견. F2/Q2(JTC 축 귀속)와 직접 연결 | 코드 재실행 2026-07-07 | main.tex Exp.5, experiments.py suptitle | **완료** (2026-07-07, 본문·그림·suptitle 정정) |
+| **B-15** | **P0(문서), 완료** | **★Exp. 4의 벡터장은 모델(L,α)에서 유도된 것이 아니라 손으로 만든 삽화**. `experiments.py`의 `field(x,y)`는 `(x,y)`=(self,context) 0–100 평면에서 대각선·중심(50,50)으로 당기는 힘을 계수(0.15, 0.05)로 직접 설계한 것 — `dL/dt`, `dα/dt`(식 6–7)와 무관. 원인은 F1과 동일: 실제 α는 simplex 위 1차원이라 챕터 Fig.2의 2차원 평면 자체를 표현할 자유도가 없음. 사용자가 재검토 중 질문해 발견 | 사용자 질문 2026-07-07 | main.tex §3.4 본문·캡션 | **완료** (2026-07-07, 본문·캡션에 "모델 유도 아님, 챕터 Fig.2의 삽화" 명시) |
 
 ## ★ B-14 상세 (commit 전 결정 필요)
 
