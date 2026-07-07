@@ -137,44 +137,52 @@ def exp3_pivot(outdir="figures"):
 
 # --------------------------------------------------------------------------- #
 def exp4_corridor(outdir="figures"):
-    """The adaptive corridor rendered as a dynamical attractor (cf. Fig. 2)."""
-    def field(x, y):
-        d = (y - x)
-        return 0.15 * d + 0.05 * (50 - x), -0.15 * d + 0.05 * (50 - y)
+    """The simplex flow of alpha, from the model's own relaxation term (dalpha/dt).
 
-    xs = np.linspace(2, 100, 22)
-    ys = np.linspace(2, 100, 22)
-    X, Y = np.meshgrid(xs, ys)
-    U, V = field(X, Y)
-    N = np.hypot(U, V)
-    N[N == 0] = 1
-    fig, ax = plt.subplots(figsize=(6.8, 6.4))
-    ax.quiver(X, Y, U / N, V / N, N, cmap="Greys", alpha=0.5, scale=32, width=0.003)
-    ax.fill_between([0, 100], [-15, 85], [15, 115], color=C_BAL, alpha=0.12, zorder=0)
-    ax.plot([0, 100], [0, 100], color=C_BAL, lw=1.5, ls="--")
-    ax.text(58, 70, "Adaptive corridor", rotation=45, color=C_BAL, fontsize=11, fontweight="bold")
-    ax.scatter([80], [18], color=C_INT, s=70, zorder=5)
-    ax.annotate("over-internalization\n(pivot -> context-work)", (80, 18),
-                xytext=(40, 6), fontsize=8, color=C_INT, arrowprops=dict(arrowstyle="->", color=C_INT))
-    ax.scatter([18], [80], color=C_EXT, s=70, zorder=5)
-    ax.annotate("over-externalization\n(pivot -> self-work)", (18, 80),
-                xytext=(20, 92), fontsize=8, color=C_EXT, arrowprops=dict(arrowstyle="->", color=C_EXT))
-    for (x0, y0), col in [((80, 18), C_INT), ((18, 80), C_EXT), ((15, 20), INK)]:
-        x, y = x0, y0
-        xt, yt = [x], [y]
-        for _ in range(400):
-            fx, fy = field(x, y)
-            x += fx * 0.1
-            y += fy * 0.1
-            xt.append(x)
-            yt.append(y)
-        ax.plot(xt, yt, color=col, lw=1.8, alpha=0.85)
-        ax.scatter([x0], [y0], color=col, s=18)
-    ax.set(xlim=(0, 100), ylim=(0, 100), xlabel="Self-awareness (x)", ylabel="Context/other-awareness (y)")
-    _style(ax)
-    ax.set_title("Experiment 4 - Adaptive corridor as a dynamical attractor (cf. Fig. 2)",
-                 fontsize=11, fontweight="bold", color=INK)
-    fig.tight_layout()
+    Unlike the other experiments, this one has no belief dynamics to run -- it
+    visualizes Eq. (dalpha/dt = -gamma*(alpha - alpha0) + u) restricted to u=0,
+    i.e. the resting pull of the dial toward its personal set-point alpha0, on
+    the same (alpha_self, alpha_context) simplex used for the dial figure. The
+    three panels reuse the three regimes of Experiment 1.
+    """
+    gamma = Params().gamma
+
+    def flow(alpha_self, alpha0):
+        v = -gamma * (alpha_self - alpha0)   # d(alpha_self)/dt
+        return v, -v                          # d(alpha_context)/dt = -v (alpha_self+alpha_context=1)
+
+    regimes = [("Over-internalizing\n" + r"set-point $\alpha_0=0.85$", 0.85, C_INT),
+               ("Balanced\n" + r"set-point $\alpha_0=0.50$", 0.50, C_BAL),
+               ("Over-externalizing\n" + r"set-point $\alpha_0=0.15$", 0.15, C_EXT)]
+
+    fig, axes = plt.subplots(1, 3, figsize=(12.8, 4.6))
+    for ax, (title, a0, col) in zip(axes, regimes):
+        # the corridor: the same highlighted mid-segment as the dial figure
+        ax.plot([0.62, 0.38], [0.38, 0.62], color=C_BAL, lw=8, alpha=0.30,
+                solid_capstyle="round", zorder=1)
+        # the simplex line alpha_self + alpha_context = 1
+        ax.plot([0, 1], [1, 0], color=INK, lw=1.5, zorder=2)
+        # arrows: the real flow -gamma*(alpha_self - alpha0), read off the line
+        for x in np.linspace(0.05, 0.95, 10):
+            y = 1 - x
+            vx, vy = flow(x, a0)
+            n = np.hypot(vx, vy)
+            if n < 1e-4:
+                continue
+            length = 0.045 + 0.05 * min(n / (gamma * 0.5), 1.0)
+            ax.annotate("", xy=(x + length * vx / n, y + length * vy / n), xytext=(x, y),
+                        arrowprops=dict(arrowstyle="-|>", color=col, lw=1.3, alpha=0.85),
+                        zorder=3)
+        # the resting point: alpha(t) -> alpha0 as t -> infinity, absent a pivot
+        ax.scatter([a0], [1 - a0], color=col, s=80, zorder=5,
+                   edgecolor="white", linewidth=1.0)
+        ax.set(xlim=(-0.03, 1.03), ylim=(-0.03, 1.03),
+               xlabel=r"$\alpha_{\rm self}$", ylabel=r"$\alpha_{\rm context}$")
+        ax.set_title(title, fontsize=10, color=col, fontweight="bold")
+        _style(ax)
+    fig.suptitle("Experiment 4 - Where the dial rests, absent a pivot (Eq. dalpha/dt, u=0)",
+                 fontsize=12, fontweight="bold", color=INK)
+    fig.tight_layout(rect=[0, 0, 1, 0.88])
     return _save(fig, outdir, "exp4_corridor.png")
 
 
