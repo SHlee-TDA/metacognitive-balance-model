@@ -46,6 +46,29 @@
 | representation vs behavior-control pathology | LLM 실패의 두 부류: hallucination·bias / sycophancy·refusal (Sun 2026 NeuroCogMap) | `L`(표상) 축 / `alpha`·pivot(제어) 축과 대응 | ✅ |
 | psychotic-like experiences (PLEs) | 준임상 정신증 유사 경험; state×trait로 유발 (Daniel 2014) | 외부 채널 소거 시 `L` 표류의 대리 지표 | ✅ |
 
+## Han 회신(2026-07-07/08)에서 추가된 용어
+
+| 용어 | 정의 (Han 노트 기준) | 수학적/모델 대응 (v2 설계) | 상태 |
+|---|---|---|---|
+| 관점 (perspective, P) | 사건을 바라보고 해석하는 **마음의 위치** — 현실이 아니라 해석의 방식 (자기비난적·피해적·절망적·방어적·회복지향적 관점 등) | 내용적 방향은 L·b에, 형성 가중은 α에 분산 수록; P 자체는 (L, â, m)의 창발적 readout 후보 (B-19) | ✅ |
+| 관점 성찰 (perspective reflection) | 지금 붙잡은 해석을 '현실 전체'가 아닌 '하나의 관점'으로 알아차리는 **낮은 문턱의 메타인지 활동** | fusion 저하 = insight readout의 반전 (1 − fusion) | ✅ |
+| 관점 구성 (perspective configuration) | 자기·타인·상황 인식의 상호작용으로 형성되는 해석적 위치; 균형적/불균형적일 수 있음 | P(t) = (ĥ, fusion) — attractor 유역 전이가 P 재구성 | ✅ |
+| Δ (meaning-level discrepancy) | 지배적 관점과 다른 가능한 관점들 사이의 의미적 불일치·갈등 방향·조절 요구·재구성 가능성을 알리는 **동적 신호. 결함이 아니라 조절이 시작되는 지점** | 1차 조작화: Δ = λ_S − λ_C (크기 = 강도, 부호 = 방향). 모델은 "Δ의 한 조작화"로 자칭 (B-16) | ✅ |
+| 전체 관여 수준 (m) | 두 인식 축이 함께 활성화된 정도 — **Δ를 인식·견딤·조절하는 힘** ((20,20) = 이 힘이 약한 상태) | \|**a**\|₁ = a_self + a_context; v1은 m=1 특수 경우 | ✅ |
+| reflective interval (반성적 간격) | pivot·micro-cycle의 본 기능: 교정·정상화가 아니라 **현재 관점에의 융합을 잠시 멈추고 다른 가능성을 여는 간격** | pivot v2: â 방향 전환 + κ 일시 증가 + 커밋 임계 일시 상승 (B-17) | ✅ |
+| self-dominant / context-dominant JTC | 내적 단서가 사실처럼 굳는 경로 / 외부 단서 하나가 검토 없이 의미로 굳는 경로 — 공통: 대안 생성 전 확신 급상승 | Exp. 8 이원화 (B-03·B-05) | ✅ |
+| insight / reflective distance | "그 해석을 하나의 관점으로 볼 수 있는가" | 1 − fusion, 또는 2차 채널 ρ (B-04와 접합) | ✅ |
+| action tendency / behavioral safety distance | 확신에 따라 바로 행동하려는가, **멈출 수 있는가** | 행동 게이트 (B-20): 확신 ≠ 행동 | ✅ |
+
+**α 해석 경고 (Han 항목 8)**: α(self-weight)가 높다는 것은 건강한 self-awareness가
+높다는 뜻이 **아니다** — α는 가중치이지 능력이 아님. (기존 α 행에 대한 주의 보강)
+
+**용어 정돈 (2026-07-15, 확정 대기)**: 출력 b의 명칭을 belief → **credence(주관적
+확률)** 로 개명 제안. 근거: 심리학의 belief(신념·망상적 신념)와 충돌, 통계학의
+confidence와 충돌 회피, 형식인식론 표준("등급화된 믿음의 정도"를 뜻하는 전용어).
+결과 3층 구분: **ĥ = 해석 내용**(Han의 belief content) / **b = credence** /
+**c = confidence**(메타인지적 느낌, Proust). — v2 확정 시 전 문서 일괄 반영 예정.
+
 ## 미등재 대기열
 
 Phase 2 후반/Phase 4에서 등재 예정: metacognitive feelings (fluency, effort),
